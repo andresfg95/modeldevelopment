@@ -34,6 +34,14 @@
   --ml-cv: #ffb86c;
   --ml-nlp: #c89cff;
   --ml-gen: #ff6e9c;
+
+  /* Artifact 3 — LLM Training */
+  --llm-c1: #3b82f6;
+  --llm-c2: #06b6d4;
+  --llm-c3: #8b5cf6;
+  --llm-c4: #f59e0b;
+  --llm-c5: #10b981;
+  --llm-c6: #f43f5e;
 }
 
 body {
@@ -121,6 +129,12 @@ body {
 }
 .tab-btn.active .tab-num { background: rgba(0,229,255,.15); color: var(--nn-c1); }
 .tab-btn.active.ml .tab-num { background: rgba(126,255,196,.12); color: var(--ml-sup); }
+.tab-btn.active.llm {
+  background: rgba(59,130,246,.08);
+  border-color: rgba(59,130,246,.35);
+  color: var(--llm-c1);
+}
+.tab-btn.active.llm .tab-num { background: rgba(59,130,246,.15); color: var(--llm-c1); }
 
 /* ── PANELS ── */
 .panel { display: none; }
@@ -453,6 +467,9 @@ body {
     </button>
     <button class="tab-btn ml" onclick="switchTab('ml',this)">
       🧠 ML Algorithm Framework <span class="tab-num">02</span>
+    </button>
+    <button class="tab-btn llm" onclick="switchTab('llm',this)">
+      🤖 Generative AI LLM Training <span class="tab-num">03</span>
     </button>
   </div>
 </div>
@@ -797,8 +814,178 @@ body {
   </div>
 </div><!-- /panel-ml -->
 
+<style>
+.llm-pipe-step { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 8px; position:relative; z-index:1; }
+.llm-pipe-icon { width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px; border:2px solid; background:var(--bg); position:relative; z-index:2; transition:transform 0.2s; cursor:default; }
+.llm-pipe-icon:hover { transform:scale(1.12); }
+.llm-card { background:var(--card); border:1px solid rgba(99,179,255,0.1); border-radius:16px; padding:26px; position:relative; overflow:hidden; transition:border-color 0.2s, transform 0.2s; }
+.llm-card:hover { border-color:rgba(99,179,255,0.25); transform:translateY(-2px); }
+.llm-mini-card { background:var(--card); border:1px solid rgba(99,179,255,0.1); border-radius:12px; padding:20px; text-align:center; transition:border-color 0.2s, transform 0.2s; }
+.llm-mini-card:hover { border-color:rgba(99,179,255,0.25); transform:translateY(-2px); }
+.llm-model-card { background:#0f1526; border:1px solid rgba(99,179,255,0.1); border-radius:14px; padding:22px 18px; position:relative; overflow:hidden; transition:transform 0.2s, border-color 0.2s; }
+.llm-model-card:hover { transform:translateY(-4px); border-color:rgba(99,179,255,0.28); }
+.llm-rlhf-step { flex:1; background:#0f1526; border:1px solid rgba(99,179,255,0.1); padding:18px 12px; position:relative; text-align:center; }
+.llm-rlhf-step:first-child { border-radius:12px 0 0 12px; }
+.llm-rlhf-step:last-child { border-radius:0 12px 12px 0; }
+</style>
+<!-- ══════════════════════════════════════
+     PANEL 3 — GENERATIVE AI LLM TRAINING
+══════════════════════════════════════ -->
+<div class="panel" id="panel-llm">
+<div style="position:relative;overflow-x:hidden;background:linear-gradient(160deg,#04060f 0%,#07091a 100%);min-height:100vh;">
+
+  <!-- HERO -->
+  <div style="position:relative;padding:80px 60px 60px;text-align:center;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(59,130,246,0.14) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(139,92,246,0.09) 0%,transparent 60%);pointer-events:none;"></div>
+    <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:20px;">Portfolio Artifact 03 · AI/ML Education</div>
+    <h1 style="font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,4.2rem);font-weight:800;line-height:1.06;letter-spacing:-1px;margin-bottom:18px;">How Generative AI <span style="color:var(--llm-c1)">Large Language Models</span> Are Built</h1>
+    <p style="font-size:14px;color:var(--muted);max-width:600px;margin:0 auto 40px;line-height:1.75;">A visual breakdown of the training pipeline, infrastructure, resource costs, and alignment techniques behind today's most powerful AI systems — from raw data to deployment.</p>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;">
+      <span style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:999px;padding:.35rem .9rem;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--llm-c1);">Training Pipeline</span>
+      <span style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:999px;padding:.35rem .9rem;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--llm-c2);">Resource Costs</span>
+      <span style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:999px;padding:.35rem .9rem;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--llm-c3);">Model Comparisons</span>
+      <span style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:999px;padding:.35rem .9rem;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--llm-c4);">RLHF & Alignment</span>
+    </div>
+  </div>
+
+  <div style="max-width:1140px;margin:0 auto;padding:0 40px 80px;">
+
+    <!-- PIPELINE STRIP -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">01 — Training Pipeline Overview <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-bottom:48px;">
+      <div style="position:absolute;top:27px;left:8%;width:84%;height:2px;background:linear-gradient(90deg,var(--llm-c1),var(--llm-c2),var(--llm-c3),var(--llm-c4),var(--llm-c5),var(--llm-c6));z-index:0;border-radius:1px;"></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c1);box-shadow:0 0 16px rgba(59,130,246,0.3);">🗄️</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c1);text-transform:uppercase;margin-bottom:4px;">Data Collection</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Web crawls, books, code repos — trillions of tokens</div></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c2);box-shadow:0 0 16px rgba(6,182,212,0.3);">🧹</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c2);text-transform:uppercase;margin-bottom:4px;">Data Cleaning</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Dedup, filtering, toxicity removal, quality scoring</div></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c3);box-shadow:0 0 16px rgba(139,92,246,0.3);">🔢</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c3);text-transform:uppercase;margin-bottom:4px;">Tokenization</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Text → integer tokens via BPE vocabularies</div></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c4);box-shadow:0 0 16px rgba(245,158,11,0.3);">⚡</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c4);text-transform:uppercase;margin-bottom:4px;">Pre-training</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Self-supervised next-token prediction on GPU clusters</div></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c5);box-shadow:0 0 16px rgba(16,185,129,0.3);">🎯</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c5);text-transform:uppercase;margin-bottom:4px;">Fine-tuning & RLHF</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Human feedback to align behavior and safety</div></div>
+      <div class="llm-pipe-step"><div class="llm-pipe-icon" style="border-color:var(--llm-c6);box-shadow:0 0 16px rgba(244,63,94,0.3);">🚀</div><div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--llm-c6);text-transform:uppercase;margin-bottom:4px;">Deployment</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Quantization, serving infra, API & safety monitoring</div></div>
+    </div>
+
+    <!-- KEY STATS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:52px;">
+      <div class="llm-mini-card"><div style="font-size:26px;margin-bottom:8px;">📦</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">Training Data</div><div style="font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,38px);font-weight:800;color:var(--llm-c1);line-height:1;">~15T</div><div style="font-size:11px;color:var(--muted);">tokens for frontier models</div></div>
+      <div class="llm-mini-card"><div style="font-size:26px;margin-bottom:8px;">🖥️</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">GPUs Used</div><div style="font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,38px);font-weight:800;color:var(--llm-c3);line-height:1;">25K+</div><div style="font-size:11px;color:var(--muted);">A100/H100s in parallel</div></div>
+      <div class="llm-mini-card"><div style="font-size:26px;margin-bottom:8px;">💸</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">Training Cost</div><div style="font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,38px);font-weight:800;color:var(--llm-c4);line-height:1;">$100M+</div><div style="font-size:11px;color:var(--muted);">est. for GPT-4 scale</div></div>
+      <div class="llm-mini-card"><div style="font-size:26px;margin-bottom:8px;">⏱️</div><div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">Training Time</div><div style="font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,38px);font-weight:800;color:var(--llm-c5);line-height:1;">90+ days</div><div style="font-size:11px;color:var(--muted);">continuous GPU-cluster hrs</div></div>
+    </div>
+
+    <!-- DATA + PRE-TRAINING CARDS -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">02 — Key Stage Deep Dives <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px;">
+      <div class="llm-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--llm-c1),var(--llm-c2));border-radius:16px 16px 0 0;"></div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;">🗄️ Data Collection &amp; Cleaning</h3>
+        <p style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:16px;">Training begins with assembling a vast corpus. Common Crawl alone yields 50B+ web pages. Data must be deduplicated, quality-filtered, and scrubbed of PII, hate speech, and harmful content.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Common Crawl</span><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c1);">~67%</span></div><div style="height:5px;background:rgba(59,130,246,0.12);border-radius:3px;"><div style="width:67%;height:100%;background:var(--llm-c1);border-radius:3px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Books / Literature</span><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c2);">~15%</span></div><div style="height:5px;background:rgba(6,182,212,0.12);border-radius:3px;"><div style="width:15%;height:100%;background:var(--llm-c2);border-radius:3px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Code (GitHub etc.)</span><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c3);">~10%</span></div><div style="height:5px;background:rgba(139,92,246,0.12);border-radius:3px;"><div style="width:10%;height:100%;background:var(--llm-c3);border-radius:3px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Wikipedia / Academic</span><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c5);">~8%</span></div><div style="height:5px;background:rgba(16,185,129,0.12);border-radius:3px;"><div style="width:8%;height:100%;background:var(--llm-c5);border-radius:3px;"></div></div></div>
+        </div>
+      </div>
+      <div class="llm-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--llm-c3),var(--llm-c4));border-radius:16px 16px 0 0;"></div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;">⚡ Pre-training: Next Token Prediction</h3>
+        <p style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:16px;">The model — a Transformer with billions of parameters — learns language, reasoning, and world knowledge purely from predicting the next token. Training uses data, model, and pipeline parallelism across thousands of accelerators.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Optimizer</div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--llm-c3);">AdamW</div></div>
+          <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Precision</div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--llm-c4);">BF16 / FP8</div></div>
+          <div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Architecture</div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--llm-c2);">Transformer</div></div>
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Loss Fn</div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--llm-c5);">Cross-Entropy</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RLHF FLOW -->
+    <div class="llm-card" style="margin-bottom:52px;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--llm-c5),var(--llm-c2),var(--llm-c3));border-radius:16px 16px 0 0;"></div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;">🎯 Fine-tuning &amp; Alignment: RLHF / Constitutional AI</h3>
+      <p style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:20px;">After pre-training, models are aligned to be helpful, harmless, and honest. Two dominant techniques: <strong style="color:var(--text);">RLHF</strong> (OpenAI, Meta) and Anthropic's <strong style="color:var(--text);">Constitutional AI</strong>.</p>
+      <div style="display:flex;align-items:stretch;gap:0;">
+        <div class="llm-rlhf-step"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;opacity:.12;position:absolute;top:6px;right:10px;">1</div><div style="font-size:20px;margin-bottom:6px;">📝</div><div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--llm-c1);margin-bottom:4px;">SFT</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Supervised fine-tuning on human instruction/response pairs</div></div>
+        <div style="display:flex;align-items:center;padding:0 6px;color:var(--llm-c2);font-size:16px;">→</div>
+        <div class="llm-rlhf-step"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;opacity:.12;position:absolute;top:6px;right:10px;">2</div><div style="font-size:20px;margin-bottom:6px;">👥</div><div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--llm-c2);margin-bottom:4px;">Human Ranking</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Raters compare and rank model outputs at scale</div></div>
+        <div style="display:flex;align-items:center;padding:0 6px;color:var(--llm-c2);font-size:16px;">→</div>
+        <div class="llm-rlhf-step"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;opacity:.12;position:absolute;top:6px;right:10px;">3</div><div style="font-size:20px;margin-bottom:6px;">🏆</div><div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--llm-c3);margin-bottom:4px;">Reward Model</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Trained to predict human preference scores</div></div>
+        <div style="display:flex;align-items:center;padding:0 6px;color:var(--llm-c2);font-size:16px;">→</div>
+        <div class="llm-rlhf-step"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;opacity:.12;position:absolute;top:6px;right:10px;">4</div><div style="font-size:20px;margin-bottom:6px;">🔄</div><div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--llm-c4);margin-bottom:4px;">PPO / DPO</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">RL optimizes policy to maximize reward signal</div></div>
+        <div style="display:flex;align-items:center;padding:0 6px;color:var(--llm-c2);font-size:16px;">→</div>
+        <div class="llm-rlhf-step"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;opacity:.12;position:absolute;top:6px;right:10px;">5</div><div style="font-size:20px;margin-bottom:6px;">✅</div><div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--llm-c5);margin-bottom:4px;">Evaluation</div><div style="font-size:10px;color:var(--muted);line-height:1.5;">Red-teaming, MMLU, HumanEval, safety audits</div></div>
+      </div>
+    </div>
+
+    <!-- MODEL CARDS -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">03 — Real-World Models: Resources &amp; Scale <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:52px;">
+      <div class="llm-model-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#10a37f,#1a7f5e);border-radius:14px 14px 0 0;"></div><div style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(16,163,127,0.12);color:#10a37f;border:1px solid rgba(16,163,127,0.3);margin-bottom:10px;">OpenAI</div><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px;">GPT-4</div><div style="font-size:10px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">Multimodal · MoE</div><div style="display:flex;flex-direction:column;gap:7px;font-size:11px;"><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Parameters</span><span style="color:#10a37f;font-weight:600;">~1.8T (est.)</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Tokens</span><span>~13T</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Est. cost</span><span>$63–100M+</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Released</span><span>Mar 2023</span></div></div></div>
+      <div class="llm-model-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:14px 14px 0 0;"></div><div style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-bottom:10px;">Anthropic</div><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px;">Claude 3</div><div style="font-size:10px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">Constitutional AI</div><div style="display:flex;flex-direction:column;gap:7px;font-size:11px;"><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Parameters</span><span style="color:#f59e0b;font-weight:600;">Undisclosed</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Tokens</span><span>>10T (est.)</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Est. cost</span><span>~$50–100M</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Released</span><span>Mar 2024</span></div></div></div>
+      <div class="llm-model-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--llm-c1),var(--llm-c2));border-radius:14px 14px 0 0;"></div><div style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(59,130,246,0.12);color:var(--llm-c1);border:1px solid rgba(59,130,246,0.3);margin-bottom:10px;">Meta AI</div><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px;">LLaMA 3</div><div style="font-size:10px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">Open Weights</div><div style="display:flex;flex-direction:column;gap:7px;font-size:11px;"><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Parameters</span><span style="color:var(--llm-c1);font-weight:600;">8B – 405B</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Tokens</span><span>15T+</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Est. cost</span><span>~$30–60M</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Released</span><span>Apr 2024</span></div></div></div>
+      <div class="llm-model-card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--llm-c3),#ec4899);border-radius:14px 14px 0 0;"></div><div style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(139,92,246,0.12);color:var(--llm-c3);border:1px solid rgba(139,92,246,0.3);margin-bottom:10px;">Google</div><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px;">Gemini 1.5</div><div style="font-size:10px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">MoE · 1M Context</div><div style="display:flex;flex-direction:column;gap:7px;font-size:11px;"><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Parameters</span><span style="color:var(--llm-c3);font-weight:600;">Undisclosed</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Tokens</span><span>>10T (est.)</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Est. cost</span><span>~$60–80M+</span></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(99,179,255,0.08);padding-top:7px;"><span style="color:var(--muted);">Released</span><span>Feb 2024</span></div></div></div>
+    </div>
+
+    <!-- RESOURCE BARS -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">04 — Resource Breakdown <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:52px;">
+      <div class="llm-card" style="padding:22px;"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--llm-c1);opacity:0.6;border-radius:14px 14px 0 0;"></div><h4 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🖥️ Compute Hardware</h4>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">NVIDIA H100</span><span style="color:var(--llm-c1);">Best-in-class</span></div><div style="height:5px;background:rgba(59,130,246,0.1);border-radius:3px;"><div style="width:95%;height:100%;background:var(--llm-c1);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">NVIDIA A100</span><span style="color:var(--llm-c2);">Widely used</span></div><div style="height:5px;background:rgba(6,182,212,0.1);border-radius:3px;"><div style="width:80%;height:100%;background:var(--llm-c2);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Google TPU v5</span><span style="color:var(--llm-c3);">Google-only</span></div><div style="height:5px;background:rgba(139,92,246,0.1);border-radius:3px;"><div style="width:72%;height:100%;background:var(--llm-c3);border-radius:3px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">AMD MI300X</span><span style="color:var(--llm-c4);">Emerging</span></div><div style="height:5px;background:rgba(245,158,11,0.1);border-radius:3px;"><div style="width:55%;height:100%;background:var(--llm-c4);border-radius:3px;"></div></div></div>
+      </div>
+      <div class="llm-card" style="padding:22px;"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--llm-c4);opacity:0.6;border-radius:14px 14px 0 0;"></div><h4 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">⚡ Energy Consumption</h4>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">GPT-3 (175B)</span><span style="color:var(--llm-c4);">1,287 MWh</span></div><div style="height:5px;background:rgba(245,158,11,0.1);border-radius:3px;"><div style="width:25%;height:100%;background:var(--llm-c4);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">GPT-4 (~1.8T MoE)</span><span style="color:var(--llm-c6);">~50,000 MWh</span></div><div style="height:5px;background:rgba(244,63,94,0.1);border-radius:3px;"><div style="width:90%;height:100%;background:var(--llm-c6);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">LLaMA 2 (70B)</span><span style="color:var(--llm-c5);">~539 MWh</span></div><div style="height:5px;background:rgba(16,185,129,0.1);border-radius:3px;"><div style="width:18%;height:100%;background:var(--llm-c5);border-radius:3px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Mistral 7B</span><span style="color:var(--muted);">~65 MWh</span></div><div style="height:5px;background:rgba(107,122,153,0.1);border-radius:3px;"><div style="width:2%;height:100%;background:var(--muted);border-radius:3px;"></div></div></div>
+      </div>
+      <div class="llm-card" style="padding:22px;"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--llm-c5);opacity:0.6;border-radius:14px 14px 0 0;"></div><h4 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">💸 Budget Allocation</h4>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Pre-training compute</span><span style="color:var(--llm-c1);">~60%</span></div><div style="height:5px;background:rgba(59,130,246,0.1);border-radius:3px;"><div style="width:60%;height:100%;background:var(--llm-c1);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Data collection &amp; prep</span><span style="color:var(--llm-c2);">~20%</span></div><div style="height:5px;background:rgba(6,182,212,0.1);border-radius:3px;"><div style="width:20%;height:100%;background:var(--llm-c2);border-radius:3px;"></div></div></div>
+        <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">RLHF / alignment</span><span style="color:var(--llm-c3);">~15%</span></div><div style="height:5px;background:rgba(139,92,246,0.1);border-radius:3px;"><div style="width:15%;height:100%;background:var(--llm-c3);border-radius:3px;"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--muted);">Safety &amp; evaluation</span><span style="color:var(--llm-c4);">~5%</span></div><div style="height:5px;background:rgba(245,158,11,0.1);border-radius:3px;"><div style="width:5%;height:100%;background:var(--llm-c4);border-radius:3px;"></div></div></div>
+      </div>
+    </div>
+
+    <!-- COST TABLE -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">05 — Comparative Cost Table <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="background:var(--card);border:1px solid rgba(99,179,255,0.1);border-radius:14px;overflow:hidden;margin-bottom:52px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:rgba(15,21,38,0.9);">
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Model</th>
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Org</th>
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Parameters</th>
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Tokens</th>
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Energy</th>
+          <th style="text-align:left;padding:12px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(99,179,255,0.12);font-family:'Space Mono',monospace;font-weight:400;">Est. Cost</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(99,179,255,0.05);"><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:#10a37f;">GPT-3</td><td style="padding:12px 16px;color:var(--muted);">OpenAI</td><td style="padding:12px 16px;">175B</td><td style="padding:12px 16px;">300B</td><td style="padding:12px 16px;">1,287 MWh</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;">~$4–5M</td></tr>
+          <tr style="border-bottom:1px solid rgba(99,179,255,0.05);background:rgba(59,130,246,0.03);"><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:#10a37f;">GPT-4</td><td style="padding:12px 16px;color:var(--muted);">OpenAI</td><td style="padding:12px 16px;">~1.8T (MoE)</td><td style="padding:12px 16px;">~13T</td><td style="padding:12px 16px;">>50,000 MWh</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c6);">$63–100M+</td></tr>
+          <tr style="border-bottom:1px solid rgba(99,179,255,0.05);"><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:#f59e0b;">Claude 3 Opus</td><td style="padding:12px 16px;color:var(--muted);">Anthropic</td><td style="padding:12px 16px;">Undisclosed</td><td style="padding:12px 16px;">>10T (est.)</td><td style="padding:12px 16px;">Unknown</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;">~$50–100M</td></tr>
+          <tr style="border-bottom:1px solid rgba(99,179,255,0.05);background:rgba(59,130,246,0.03);"><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c1);">LLaMA 3 (405B)</td><td style="padding:12px 16px;color:var(--muted);">Meta AI</td><td style="padding:12px 16px;">405B</td><td style="padding:12px 16px;">15T+</td><td style="padding:12px 16px;">~15,000 MWh</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;">~$30–60M</td></tr>
+          <tr style="border-bottom:1px solid rgba(99,179,255,0.05);"><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c3);">Gemini Ultra</td><td style="padding:12px 16px;color:var(--muted);">Google</td><td style="padding:12px 16px;">Undisclosed</td><td style="padding:12px 16px;">>10T (est.)</td><td style="padding:12px 16px;">Unknown</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;">~$60–80M+</td></tr>
+          <tr><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c2);">Mistral 7B</td><td style="padding:12px 16px;color:var(--muted);">Mistral AI</td><td style="padding:12px 16px;">7.3B</td><td style="padding:12px 16px;">~1T</td><td style="padding:12px 16px;">~65 MWh</td><td style="padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;color:var(--llm-c5);">~$300–500K</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- KEY TAKEAWAYS -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--llm-c2);margin-bottom:24px;display:flex;align-items:center;gap:12px;">06 — Key Takeaways <span style="flex:1;height:1px;background:rgba(99,179,255,0.12);display:inline-block;"></span></div>
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(139,92,246,0.06));border:1px solid rgba(99,179,255,0.16);border-radius:16px;padding:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;">
+      <div><div style="font-size:22px;margin-bottom:10px;">📈</div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;font-size:15px;">Scale is Everything</div><p style="font-size:12px;color:var(--muted);line-height:1.75;">Performance follows scaling laws (Chinchilla, 2022): more compute + more data = better models. But costs scale super-linearly — efficiency research (MoE, sparse models) is now critical.</p></div>
+      <div><div style="font-size:22px;margin-bottom:10px;">🧭</div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;font-size:15px;">Alignment is Non-Optional</div><p style="font-size:12px;color:var(--muted);line-height:1.75;">Raw pre-trained models are capable but unsafe to deploy. RLHF and Constitutional AI are not afterthoughts — they determine whether a model is trustworthy enough for commercial use.</p></div>
+      <div><div style="font-size:22px;margin-bottom:10px;">🌍</div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;font-size:15px;">Sustainability Matters</div><p style="font-size:12px;color:var(--muted);line-height:1.75;">A frontier training run can emit as much CO₂ as 500+ transatlantic flights. Smaller, data-efficient models (Phi-3, Mistral) are a direct industry response to this challenge.</p></div>
+    </div>
+
+    <div style="text-align:center;padding:40px 0 10px;font-size:11px;color:var(--muted);letter-spacing:1px;border-top:1px solid rgba(99,179,255,0.08);margin-top:52px;">
+      Sources: OpenAI · Anthropic · Meta AI · Google DeepMind Technical Reports · Epoch AI · Patterson et al. (2021) · Hoffmann et al. (2022) · SemiAnalysis · Wolfram (2023)
+    </div>
+  </div>
+</div>
+</div><!-- /panel-llm -->
+
+
 <footer class="port-footer">
-  Professional Portfolio &nbsp;·&nbsp; <span>2 Artifacts</span> &nbsp;·&nbsp; Neural Networks · ML Framework
+  Professional Portfolio &nbsp;·&nbsp; <span>3 Artifacts</span> &nbsp;·&nbsp; Neural Networks · ML Framework · Generative AI LLM Training
 </footer>
 
 <script>
