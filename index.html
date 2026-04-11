@@ -45,6 +45,16 @@
   --xai-g1: rgba(240,192,64,.13);
   --xai-g2: rgba(255,112,67,.11);
 
+  /* Artifact 5 — Decision Matrix */
+  --dm-c1: #34d399;
+  --dm-c2: #f472b6;
+  --dm-c3: #fb923c;
+  --dm-c4: #a78bfa;
+  --dm-c5: #38bdf8;
+  --dm-nlp: #a78bfa;
+  --dm-cv: #38bdf8;
+  --dm-tab: #34d399;
+
   /* Artifact 3 — LLM Training */
   --llm-c1: #3b82f6;
   --llm-c2: #06b6d4;
@@ -457,6 +467,12 @@ body {
   color: var(--xai-c1);
 }
 .tab-btn.active.xai .tab-num { background: rgba(240,192,64,.15); color: var(--xai-c1); }
+.tab-btn.active.dm {
+  background: rgba(52,211,153,.08);
+  border-color: rgba(52,211,153,.35);
+  color: var(--dm-c1);
+}
+.tab-btn.active.dm .tab-num { background: rgba(52,211,153,.15); color: var(--dm-c1); }
 
 #panel-xai {
   background-image:
@@ -682,6 +698,9 @@ body {
     </button>
     <button class="tab-btn xai" onclick="switchTab('xai',this)">
       🔍 Explainable AI (XAI) <span class="tab-num">04</span>
+    </button>
+    <button class="tab-btn dm" onclick="switchTab('dm',this)">
+      📊 Pre-Trained Model Matrix <span class="tab-num">05</span>
     </button>
   </div>
 </div>
@@ -1496,9 +1515,1079 @@ body {
 </div>
 </div><!-- /panel-xai -->
 
+<!-- ══════════════════════════════════════
+     PANEL 5 — PRE-TRAINED MODEL DECISION MATRIX
+══════════════════════════════════════ -->
+<div class="panel" id="panel-dm" style="
+  background-image: linear-gradient(rgba(52,211,153,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52,211,153,.018) 1px, transparent 1px);
+  background-size: 52px 52px;
+  min-height: 100vh;
+">
+
+<style>
+/* ── DM STYLES ── */
+.dm-wrap { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+.dm-hero {
+  text-align: center;
+  padding: 5rem 1rem 3.5rem;
+  position: relative;
+}
+.dm-badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--dm-c1);
+  background: rgba(52,211,153,.08);
+  border: 1px solid rgba(52,211,153,.25);
+  border-radius: 999px;
+  padding: .35rem 1.1rem;
+  margin-bottom: 1.4rem;
+}
+.dm-h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  margin-bottom: 1.1rem;
+}
+.dm-h1 .acc { color: var(--dm-c1); }
+.dm-h1 .acc2 { color: var(--dm-c2); }
+.dm-sub {
+  color: var(--muted);
+  max-width: 580px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.75;
+  font-size: .97rem;
+}
+.dm-domain-pills {
+  display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.dm-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  padding: .32rem .85rem;
+  border-radius: 6px;
+  border: 1px solid;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.dm-pill.nlp  { color: var(--dm-nlp); border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.07); }
+.dm-pill.cv   { color: var(--dm-cv);  border-color: rgba(56,189,248,.3);  background: rgba(56,189,248,.07);  }
+.dm-pill.tab  { color: var(--dm-tab); border-color: rgba(52,211,153,.3);  background: rgba(52,211,153,.07);  }
+
+/* Intro cards */
+.dm-intro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+.dm-intro-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.6rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+.dm-intro-card:hover { border-color: rgba(52,211,153,.3); box-shadow: 0 0 24px rgba(52,211,153,.06); }
+.dm-ic-icon { font-size: 1.6rem; margin-bottom: .75rem; display: block; }
+.dm-ic-h { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: .5rem; }
+.dm-ic-p { font-size: .83rem; color: var(--muted); line-height: 1.65; }
+
+/* Section label */
+.dm-section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dm-c1);
+  margin-bottom: .5rem;
+}
+.dm-section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 800;
+  margin-bottom: .7rem;
+}
+.dm-section-desc {
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+/* Decision Matrix Table */
+.dm-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 3.5rem;
+  overflow-x: auto;
+}
+.dm-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+}
+.dm-table th {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 1rem 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+}
+.dm-table td {
+  padding: 1.05rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .83rem;
+  vertical-align: middle;
+}
+.dm-table tr:last-child td { border-bottom: none; }
+.dm-table tr:hover td { background: rgba(255,255,255,.02); }
+
+.dm-model-name {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: .8rem;
+  margin-bottom: .2rem;
+}
+.dm-model-sub {
+  font-size: .72rem;
+  color: var(--muted);
+}
+.dm-domain-tag {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  padding: .22rem .62rem;
+  border-radius: 5px;
+  border: 1px solid;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.dm-domain-tag.nlp  { color: var(--dm-nlp); border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.07); }
+.dm-domain-tag.cv   { color: var(--dm-cv);  border-color: rgba(56,189,248,.3);  background: rgba(56,189,248,.07);  }
+.dm-domain-tag.tab  { color: var(--dm-tab); border-color: rgba(52,211,153,.3);  background: rgba(52,211,153,.07);  }
+
+/* Score pips */
+.dm-score { display: flex; align-items: center; gap: .35rem; }
+.dm-pips { display: flex; gap: 3px; }
+.dm-pip {
+  width: 8px; height: 8px; border-radius: 2px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.dm-pip.on-green  { background: var(--dm-c1); border-color: var(--dm-c1); box-shadow: 0 0 4px rgba(52,211,153,.4); }
+.dm-pip.on-purple { background: var(--dm-nlp); border-color: var(--dm-nlp); box-shadow: 0 0 4px rgba(167,139,250,.4); }
+.dm-pip.on-blue   { background: var(--dm-cv); border-color: var(--dm-cv); box-shadow: 0 0 4px rgba(56,189,248,.4); }
+.dm-pip.on-pink   { background: var(--dm-c2); border-color: var(--dm-c2); box-shadow: 0 0 4px rgba(244,114,182,.4); }
+.dm-pip.on-orange { background: var(--dm-c3); border-color: var(--dm-c3); box-shadow: 0 0 4px rgba(251,146,60,.4); }
+.dm-score-val {
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem;
+  color: var(--muted);
+  min-width: 24px;
+}
+.dm-tag-list { display: flex; gap: .35rem; flex-wrap: wrap; }
+.dm-mini-tag {
+  font-size: .65rem;
+  padding: .2rem .5rem;
+  border-radius: 4px;
+  background: rgba(255,255,255,.05);
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,.07);
+}
+.dm-rec-badge {
+  font-size: .62rem;
+  padding: .2rem .6rem;
+  border-radius: 5px;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: .05em;
+}
+.dm-rec-badge.best  { background: rgba(52,211,153,.12); color: var(--dm-c1); border: 1px solid rgba(52,211,153,.3); }
+.dm-rec-badge.fast  { background: rgba(56,189,248,.1);  color: var(--dm-cv);  border: 1px solid rgba(56,189,248,.25); }
+.dm-rec-badge.lite  { background: rgba(251,146,60,.1);  color: var(--dm-c3); border: 1px solid rgba(251,146,60,.25); }
+.dm-rec-badge.interp { background: rgba(167,139,250,.1); color: var(--dm-nlp); border: 1px solid rgba(167,139,250,.25); }
+
+/* Radar chart area */
+.dm-radar-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+  align-items: start;
+}
+@media (max-width: 700px) { .dm-radar-section { grid-template-columns: 1fr; } }
+.dm-radar-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.8rem;
+}
+.dm-radar-title {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+canvas.dm-radar { display: block; margin: 0 auto; }
+
+/* Tradeoff bars */
+.dm-bar-row {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin-bottom: .9rem;
+}
+.dm-bar-label {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .06em;
+  width: 100px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.dm-bar-track {
+  flex: 1;
+  height: 7px;
+  background: rgba(255,255,255,.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.dm-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+.dm-bar-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  color: var(--muted);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Recommendations */
+.dm-reco-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+.dm-reco-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s;
+}
+.dm-reco-card:hover { transform: translateY(-3px); }
+.dm-rc-nlp:hover  { border-color: rgba(167,139,250,.35); }
+.dm-rc-cv:hover   { border-color: rgba(56,189,248,.35); }
+.dm-rc-tab:hover  { border-color: rgba(52,211,153,.35); }
+.dm-rc-mobile:hover { border-color: rgba(251,146,60,.35); }
+.dm-rc-accent {
+  position: absolute; top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 0 16px 0 80px;
+  opacity: .07;
+}
+.dm-rc-emo { font-size: 1.6rem; margin-bottom: .7rem; display: block; }
+.dm-rc-scenario {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .35rem;
+}
+.dm-rc-model { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: .5rem; }
+.dm-rc-why { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+
+/* Methodology */
+.dm-method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+.dm-method-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 1.4rem;
+}
+.dm-mc-step {
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .18em;
+  color: var(--dm-c1);
+  margin-bottom: .6rem;
+}
+.dm-mc-h { font-weight: 600; font-size: .9rem; margin-bottom: .4rem; }
+.dm-mc-p { font-size: .78rem; color: var(--muted); line-height: 1.6; }
+
+/* Conclusion */
+.dm-conclusion {
+  background: var(--card);
+  border: 1px solid rgba(52,211,153,.18);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.dm-conclusion::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(52,211,153,.07), transparent 60%);
+  pointer-events: none;
+}
+.dm-conc-h { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; margin-bottom: 1rem; }
+.dm-conc-p { color: var(--muted); font-size: .88rem; line-height: 1.75; margin-bottom: .9rem; }
+.dm-source-line {
+  text-align: center;
+  font-size: .72rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+  border-top: 1px solid rgba(52,211,153,.08);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+</style>
+
+<div class="dm-wrap">
+
+  <!-- HERO -->
+  <div class="dm-hero">
+    <div class="dm-badge">Artifact 05 — Decision Matrix</div>
+    <h1 class="dm-h1">Pre-Trained Model<br><span class="acc">Trade-Off</span> <span class="acc2">Analysis</span></h1>
+    <p class="dm-sub">Comparing model size, accuracy, and inference speed across NLP/Generative AI, Computer Vision, and Tabular domains — with explainability considerations for each.</p>
+    <div class="dm-domain-pills">
+      <span class="dm-pill nlp">NLP / Generative AI</span>
+      <span class="dm-pill cv">Computer Vision</span>
+      <span class="dm-pill tab">Tabular Data</span>
+    </div>
+  </div>
+
+  <!-- INTRO: WHY THIS MATTERS -->
+  <div class="dm-wrap" style="padding-top:0">
+    <div class="dm-section-label">01 — Introduction</div>
+    <div class="dm-section-title">Why Trade-Offs Matter</div>
+    <p class="dm-section-desc">Selecting the right pre-trained model is never one-dimensional. Every deployment scenario demands a deliberate balance between performance, compute budget, latency constraints, and the ability to explain predictions to stakeholders.</p>
+
+    <div class="dm-intro-grid">
+      <div class="dm-intro-card">
+        <span class="dm-ic-icon">⚡</span>
+        <div class="dm-ic-h">Speed vs. Accuracy</div>
+        <p class="dm-ic-p">Larger models generally achieve higher benchmark accuracy, but introduce latency costs that are prohibitive for real-time applications. Efficient architectures close this gap through pruning, distillation, and hardware-aware design.</p>
+      </div>
+      <div class="dm-intro-card">
+        <span class="dm-ic-icon">🔍</span>
+        <div class="dm-ic-h">Explainability Requirements</div>
+        <p class="dm-ic-p">Healthcare, finance, and legal domains increasingly require models that can justify their outputs. Tree-based tabular models offer native interpretability; deep networks require post-hoc XAI tooling such as SHAP and attention visualization.</p>
+      </div>
+      <div class="dm-intro-card">
+        <span class="dm-ic-icon">💾</span>
+        <div class="dm-ic-h">Size & Deployment Constraints</div>
+        <p class="dm-ic-p">Edge and mobile deployments impose strict memory budgets. A 175B-parameter LLM may achieve state-of-the-art performance but is impractical for on-device inference. Compact models like MobileNet or DistilBERT serve resource-constrained environments.</p>
+      </div>
+      <div class="dm-intro-card">
+        <span class="dm-ic-icon">🌍</span>
+        <div class="dm-ic-h">Energy & Sustainability</div>
+        <p class="dm-ic-p">Training and serving large models carries significant carbon cost. Selecting the smallest model that meets performance thresholds is both economically and environmentally responsible — especially for high-throughput production workloads.</p>
+      </div>
+    </div>
+
+    <!-- METHODOLOGY -->
+    <div class="dm-section-label">02 — Methodology</div>
+    <div class="dm-section-title">How Models Were Selected</div>
+    <p class="dm-section-desc">Eight representative models were chosen to span three domains, with emphasis on diversity of size and architectural approach.</p>
+    <div class="dm-method-grid">
+      <div class="dm-method-card">
+        <div class="dm-mc-step">Step 01</div>
+        <div class="dm-mc-h">Domain Coverage</div>
+        <p class="dm-mc-p">At least two models per domain (NLP, CV, Tabular) ensuring the matrix reflects practical selection scenarios across the AI/ML landscape.</p>
+      </div>
+      <div class="dm-method-card">
+        <div class="dm-mc-step">Step 02</div>
+        <div class="dm-mc-h">Benchmark Sourcing</div>
+        <p class="dm-mc-p">Accuracy figures drawn from published papers and leaderboards: GLUE/SuperGLUE for NLP, ImageNet Top-1 for CV, and UCI benchmark suites for tabular models.</p>
+      </div>
+      <div class="dm-method-card">
+        <div class="dm-mc-step">Step 03</div>
+        <div class="dm-mc-h">Speed Normalization</div>
+        <p class="dm-mc-p">Inference speed scored 1–5 relative to peers within each domain on comparable hardware (NVIDIA A100 / CPU-only for tabular), reflecting real-world deployment parity.</p>
+      </div>
+      <div class="dm-method-card">
+        <div class="dm-mc-step">Step 04</div>
+        <div class="dm-mc-h">Explainability Rating</div>
+        <p class="dm-mc-p">Rated 1–5 based on inherent interpretability, availability of XAI tooling, and ease of generating human-auditable explanations for practitioners without ML expertise.</p>
+      </div>
+    </div>
+
+    <!-- DECISION MATRIX TABLE -->
+    <div class="dm-section-label">03 — Decision Matrix</div>
+    <div class="dm-section-title">Model Comparison Table</div>
+    <p class="dm-section-desc">Scores are rated 1 (low) – 5 (high) within each criterion. Size reflects parameter count; accuracy is benchmark-relative; speed is inverse latency.</p>
+
+    <div class="dm-table-wrap">
+      <table class="dm-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Domain</th>
+            <th>Size (Params)</th>
+            <th>Accuracy ★</th>
+            <th>Speed ⚡</th>
+            <th>Explainability 🔍</th>
+            <th>Integration 🔌</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- GPT-4 -->
+          <tr>
+            <td>
+              <div class="dm-model-name">GPT-4</div>
+              <div class="dm-model-sub">OpenAI, 2023</div>
+            </td>
+            <td><span class="dm-domain-tag nlp">NLP / GenAI</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">~1.8T (est.)</div>
+              <div style="font-size:.7rem;color:var(--muted);">MoE architecture</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">MMLU: 86.4%</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">2/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~0.5 tok/ms (API)</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip"></div>
+                  <div class="dm-pip"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">1/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Closed weights</div>
+            </td>
+            <td><span class="dm-mini-tag">REST API</span> <span class="dm-mini-tag">Azure</span></td>
+            <td><span class="dm-rec-badge best">Peak Accuracy</span></td>
+          </tr>
+
+          <!-- BERT-Base -->
+          <tr>
+            <td>
+              <div class="dm-model-name">BERT-Base</div>
+              <div class="dm-model-sub">Google, 2018</div>
+            </td>
+            <td><span class="dm-domain-tag nlp">NLP / GenAI</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">110M</div>
+              <div style="font-size:.7rem;color:var(--muted);">Encoder-only</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">GLUE: 79.6</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">4/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~60ms / sentence</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Attention maps + SHAP</div>
+            </td>
+            <td><span class="dm-mini-tag">HuggingFace</span> <span class="dm-mini-tag">PyTorch</span></td>
+            <td><span class="dm-rec-badge fast">Classification</span></td>
+          </tr>
+
+          <!-- DistilBERT -->
+          <tr>
+            <td>
+              <div class="dm-model-name">DistilBERT</div>
+              <div class="dm-model-sub">HuggingFace, 2019</div>
+            </td>
+            <td><span class="dm-domain-tag nlp">NLP / GenAI</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">66M</div>
+              <div style="font-size:.7rem;color:var(--muted);">Knowledge distilled</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">97% of BERT score</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~35ms / sentence</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-purple"></div><div class="dm-pip on-purple"></div>
+                  <div class="dm-pip on-purple"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Attention + LIME</div>
+            </td>
+            <td><span class="dm-mini-tag">HuggingFace</span> <span class="dm-mini-tag">ONNX</span></td>
+            <td><span class="dm-rec-badge lite">Edge / Mobile</span></td>
+          </tr>
+
+          <!-- EfficientNet -->
+          <tr>
+            <td>
+              <div class="dm-model-name">EfficientNet-B7</div>
+              <div class="dm-model-sub">Google, 2019</div>
+            </td>
+            <td><span class="dm-domain-tag cv">Computer Vision</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">66M</div>
+              <div style="font-size:.7rem;color:var(--muted);">Compound scaling</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">ImageNet: 84.4%</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~88ms / image</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Grad-CAM available</div>
+            </td>
+            <td><span class="dm-mini-tag">TF Hub</span> <span class="dm-mini-tag">Keras</span></td>
+            <td><span class="dm-rec-badge best">High Accuracy CV</span></td>
+          </tr>
+
+          <!-- MobileNetV3 -->
+          <tr>
+            <td>
+              <div class="dm-model-name">MobileNetV3</div>
+              <div class="dm-model-sub">Google, 2019</div>
+            </td>
+            <td><span class="dm-domain-tag cv">Computer Vision</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">5.4M</div>
+              <div style="font-size:.7rem;color:var(--muted);">Depthwise sep. conv</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">ImageNet: 75.2%</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~12ms / image (CPU)</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-blue"></div><div class="dm-pip on-blue"></div>
+                  <div class="dm-pip on-blue"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Grad-CAM / LIME</div>
+            </td>
+            <td><span class="dm-mini-tag">TFLite</span> <span class="dm-mini-tag">CoreML</span></td>
+            <td><span class="dm-rec-badge lite">Mobile / IoT</span></td>
+          </tr>
+
+          <!-- XGBoost -->
+          <tr>
+            <td>
+              <div class="dm-model-name">XGBoost</div>
+              <div class="dm-model-sub">Chen & Guestrin, 2016</div>
+            </td>
+            <td><span class="dm-domain-tag tab">Tabular</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">Task-dependent</div>
+              <div style="font-size:.7rem;color:var(--muted);">Boosted trees</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Top Kaggle performer</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">4/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~1–5ms / row</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Native SHAP support</div>
+            </td>
+            <td><span class="dm-mini-tag">scikit-learn</span> <span class="dm-mini-tag">Spark</span></td>
+            <td><span class="dm-rec-badge interp">Regulated Domains</span></td>
+          </tr>
+
+          <!-- LightGBM -->
+          <tr>
+            <td>
+              <div class="dm-model-name">LightGBM</div>
+              <div class="dm-model-sub">Microsoft, 2017</div>
+            </td>
+            <td><span class="dm-domain-tag tab">Tabular</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">Task-dependent</div>
+              <div style="font-size:.7rem;color:var(--muted);">Leaf-wise trees</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Comparable to XGB</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~0.5ms / row</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">4/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">SHAP + feature imp.</div>
+            </td>
+            <td><span class="dm-mini-tag">scikit-learn</span> <span class="dm-mini-tag">Dask</span></td>
+            <td><span class="dm-rec-badge best">Large Tabular</span></td>
+          </tr>
+
+          <!-- Random Forest -->
+          <tr>
+            <td>
+              <div class="dm-model-name">Random Forest</div>
+              <div class="dm-model-sub">Breiman, 2001</div>
+            </td>
+            <td><span class="dm-domain-tag tab">Tabular</span></td>
+            <td>
+              <div style="font-family:'DM Mono',monospace;font-size:.78rem;">Task-dependent</div>
+              <div style="font-size:.7rem;color:var(--muted);">Ensemble of trees</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">4/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Solid baseline</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip"></div><div class="dm-pip"></div>
+                </div>
+                <span class="dm-score-val">3/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">~5–20ms / row</div>
+            </td>
+            <td>
+              <div class="dm-score">
+                <div class="dm-pips">
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div><div class="dm-pip on-green"></div>
+                  <div class="dm-pip on-green"></div>
+                </div>
+                <span class="dm-score-val">5/5</span>
+              </div>
+              <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem;">Native feat. importance</div>
+            </td>
+            <td><span class="dm-mini-tag">scikit-learn</span></td>
+            <td><span class="dm-rec-badge interp">Highest Interpretability</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- VISUAL ANALYSIS -->
+    <div class="dm-section-label">04 — Visual Analysis</div>
+    <div class="dm-section-title">Trade-Off Profiles</div>
+    <p class="dm-section-desc">Radar charts plot each model across five dimensions; bar charts show aggregate trade-off pressure by domain.</p>
+
+    <div class="dm-radar-section">
+      <!-- Radar charts -->
+      <div class="dm-radar-card">
+        <div class="dm-radar-title">NLP Models — 5-Axis Profile</div>
+        <canvas class="dm-radar" id="dm-radar-nlp" width="300" height="260"></canvas>
+      </div>
+      <div class="dm-radar-card">
+        <div class="dm-radar-title">CV Models — 5-Axis Profile</div>
+        <canvas class="dm-radar" id="dm-radar-cv" width="300" height="260"></canvas>
+      </div>
+    </div>
+
+    <!-- Domain tradeoff bars -->
+    <div class="dm-radar-section" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 3.5rem;">
+      <div class="dm-radar-card" style="border-color: rgba(167,139,250,.2);">
+        <div class="dm-radar-title" style="color: var(--dm-nlp);">NLP / GenAI Trade-Offs</div>
+        <div style="margin-top:.5rem;">
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Accuracy</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:88%;background:var(--dm-nlp);"></div></div>
+            <span class="dm-bar-pct">88%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Speed</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:45%;background:var(--dm-nlp);opacity:.6;"></div></div>
+            <span class="dm-bar-pct">45%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Explainability</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:44%;background:var(--dm-nlp);opacity:.4;"></div></div>
+            <span class="dm-bar-pct">44%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Efficiency</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:55%;background:var(--dm-nlp);opacity:.5;"></div></div>
+            <span class="dm-bar-pct">55%</span>
+          </div>
+        </div>
+      </div>
+      <div class="dm-radar-card" style="border-color: rgba(56,189,248,.2);">
+        <div class="dm-radar-title" style="color: var(--dm-cv);">Computer Vision Trade-Offs</div>
+        <div style="margin-top:.5rem;">
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Accuracy</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:80%;background:var(--dm-cv);"></div></div>
+            <span class="dm-bar-pct">80%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Speed</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:80%;background:var(--dm-cv);opacity:.6;"></div></div>
+            <span class="dm-bar-pct">80%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Explainability</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:60%;background:var(--dm-cv);opacity:.4;"></div></div>
+            <span class="dm-bar-pct">60%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Efficiency</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:72%;background:var(--dm-cv);opacity:.5;"></div></div>
+            <span class="dm-bar-pct">72%</span>
+          </div>
+        </div>
+      </div>
+      <div class="dm-radar-card" style="border-color: rgba(52,211,153,.2);">
+        <div class="dm-radar-title" style="color: var(--dm-tab);">Tabular Trade-Offs</div>
+        <div style="margin-top:.5rem;">
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Accuracy</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:93%;background:var(--dm-tab);"></div></div>
+            <span class="dm-bar-pct">93%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Speed</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:90%;background:var(--dm-tab);opacity:.6;"></div></div>
+            <span class="dm-bar-pct">90%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Explainability</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:93%;background:var(--dm-tab);opacity:.4;"></div></div>
+            <span class="dm-bar-pct">93%</span>
+          </div>
+          <div class="dm-bar-row">
+            <span class="dm-bar-label">Efficiency</span>
+            <div class="dm-bar-track"><div class="dm-bar-fill" style="width:96%;background:var(--dm-tab);opacity:.5;"></div></div>
+            <span class="dm-bar-pct">96%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="dm-section-label">05 — Recommendations</div>
+    <div class="dm-section-title">Model Selection by Scenario</div>
+    <p class="dm-section-desc">No model is universally optimal. Recommended choices by real-world deployment context:</p>
+
+    <div class="dm-reco-grid">
+      <div class="dm-reco-card dm-rc-nlp">
+        <div class="dm-rc-accent" style="background:var(--dm-nlp);"></div>
+        <span class="dm-rc-emo">💬</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-nlp);">Scenario · Complex NLP / Reasoning</div>
+        <div class="dm-rc-model">GPT-4</div>
+        <p class="dm-rc-why">When peak language understanding, multi-step reasoning, and generation quality are non-negotiable and latency is acceptable (document analysis, content creation, legal summarization).</p>
+      </div>
+      <div class="dm-reco-card dm-rc-cv">
+        <div class="dm-rc-accent" style="background:var(--dm-cv);"></div>
+        <span class="dm-rc-emo">📱</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-cv);">Scenario · Mobile Image Classification</div>
+        <div class="dm-rc-model">MobileNetV3</div>
+        <p class="dm-rc-why">For on-device inference where memory is below 50MB and real-time performance matters — IoT cameras, retail apps, augmented reality — MobileNetV3 offers the best speed-to-accuracy ratio.</p>
+      </div>
+      <div class="dm-reco-card dm-rc-tab">
+        <div class="dm-rc-accent" style="background:var(--dm-tab);"></div>
+        <span class="dm-rc-emo">🏦</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-tab);">Scenario · Regulated Tabular (Finance / Health)</div>
+        <div class="dm-rc-model">XGBoost + SHAP</div>
+        <p class="dm-rc-why">Native SHAP integration enables feature-level audit trails required by GDPR, Fair Lending, and HIPAA compliance frameworks. Audit teams can validate individual predictions with minimal ML expertise.</p>
+      </div>
+      <div class="dm-reco-card dm-rc-mobile">
+        <div class="dm-rc-accent" style="background:var(--dm-c3);"></div>
+        <span class="dm-rc-emo">⚡</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-c3);">Scenario · High-Throughput NLP Serving</div>
+        <div class="dm-rc-model">DistilBERT</div>
+        <p class="dm-rc-why">40% fewer parameters than BERT-Base with only 3% accuracy loss. Ideal for production APIs processing millions of requests daily where per-inference cost and latency are primary KPIs.</p>
+      </div>
+      <div class="dm-reco-card dm-rc-cv" style="border-color: rgba(56,189,248,.25);">
+        <div class="dm-rc-accent" style="background:var(--dm-cv);"></div>
+        <span class="dm-rc-emo">🎯</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-cv);">Scenario · High-Stakes Vision (Medical Imaging)</div>
+        <div class="dm-rc-model">EfficientNet-B7</div>
+        <p class="dm-rc-why">When diagnostic accuracy is paramount and GPU resources are available, EfficientNet-B7's 84.4% ImageNet accuracy combined with Grad-CAM visualization satisfies both performance and audit requirements.</p>
+      </div>
+      <div class="dm-reco-card dm-rc-tab" style="border-color: rgba(52,211,153,.25);">
+        <div class="dm-rc-accent" style="background:var(--dm-tab);"></div>
+        <span class="dm-rc-emo">🚀</span>
+        <div class="dm-rc-scenario" style="color:var(--dm-tab);">Scenario · Large-Scale Tabular (Big Data)</div>
+        <div class="dm-rc-model">LightGBM</div>
+        <p class="dm-rc-why">Leaf-wise tree growth and histogram-based splitting make LightGBM the fastest gradient boosting option on large datasets (100M+ rows), while retaining near-XGBoost accuracy levels.</p>
+      </div>
+    </div>
+
+    <!-- CONCLUSION -->
+    <div class="dm-section-label">06 — Conclusion</div>
+    <div class="dm-section-title">Key Insights</div>
+    <div class="dm-conclusion">
+      <div class="dm-conc-h">No Universal Optimum — Context Determines the Right Model</div>
+      <p class="dm-conc-p">This analysis confirms that model selection is fundamentally a multi-objective optimization problem. The "best" model depends on the deployment environment, regulatory constraints, data characteristics, and the stakeholders who must act on model outputs.</p>
+      <p class="dm-conc-p">Tabular models — particularly XGBoost, LightGBM, and Random Forest — achieve the strongest composite score across accuracy, speed, and explainability, making them the default choice for structured data problems unless deep learning is specifically warranted by unstructured input complexity.</p>
+      <p class="dm-conc-p">Within NLP and Vision, distillation and efficient architecture design (DistilBERT, MobileNetV3) have largely closed the gap between SOTA performance and real-world deployability. Practitioners should default to efficient variants and only escalate to full-scale models when benchmarks demonstrate a clear accuracy gap that justifies the cost.</p>
+      <p class="dm-conc-p" style="margin-bottom:0;">Explainability must be treated as a first-class design criterion — not an afterthought. The best time to select XAI tooling is at model selection time, because the choice of architecture constrains the available explanation methods.</p>
+      <div class="dm-source-line">
+        Sources: Devlin et al. BERT (2018) · Sanh et al. DistilBERT (2019) · Tan & Le EfficientNet (2019) · Howard et al. MobileNetV3 (2019) · Chen & Guestrin XGBoost (2016) · Ke et al. LightGBM (2017) · OpenAI GPT-4 Technical Report (2023) · ImageNet Large Scale Visual Recognition Challenge (ILSVRC) · GLUE Benchmark (Wang et al., 2018) · Lundberg & Lee SHAP (2017)
+      </div>
+    </div>
+
+  </div>
+</div><!-- /panel-dm -->
+
+<script>
+/* ── RADAR CHARTS ── */
+function drawRadar(canvasId, labels, datasets, colors) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2 + 10;
+  const R = Math.min(W, H) * 0.36;
+  const N = labels.length;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid rings
+  for (let r = 1; r <= 5; r++) {
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+      const x = cx + Math.cos(angle) * R * r / 5;
+      const y = cy + Math.sin(angle) * R * r / 5;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,255,255,.07)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  // Spokes
+  for (let i = 0; i < N; i++) {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * R, cy + Math.sin(angle) * R);
+    ctx.strokeStyle = 'rgba(255,255,255,.1)';
+    ctx.stroke();
+    // Labels
+    const lx = cx + Math.cos(angle) * (R + 22);
+    const ly = cy + Math.sin(angle) * (R + 22);
+    ctx.fillStyle = 'rgba(107,122,153,1)';
+    ctx.font = '10px Space Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], lx, ly);
+  }
+  // Data
+  datasets.forEach(({ values, color, label }) => {
+    ctx.beginPath();
+    values.forEach((v, i) => {
+      const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+      const x = cx + Math.cos(angle) * R * v / 5;
+      const y = cy + Math.sin(angle) * R * v / 5;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = color.replace('1)', '.15)');
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+  // Legend
+  let lx = cx - (datasets.length * 70) / 2;
+  datasets.forEach(({ label, color }) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(lx, H - 22, 10, 10);
+    ctx.fillStyle = 'rgba(107,122,153,1)';
+    ctx.font = '9px Space Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, lx + 14, H - 14);
+    lx += 80;
+  });
+}
+
+const radarLabels = ['Accuracy', 'Speed', 'Explainability', 'Efficiency', 'Integration'];
+
+drawRadar('dm-radar-nlp', radarLabels, [
+  { values: [5, 2, 1, 1, 4], color: 'rgba(167,139,250,1)', label: 'GPT-4' },
+  { values: [3, 4, 3, 4, 5], color: 'rgba(56,189,248,1)', label: 'BERT-Base' },
+  { values: [3, 5, 3, 5, 5], color: 'rgba(52,211,153,1)', label: 'DistilBERT' },
+]);
+
+drawRadar('dm-radar-cv', radarLabels, [
+  { values: [5, 3, 3, 3, 4], color: 'rgba(167,139,250,1)', label: 'EfficientNet-B7' },
+  { values: [3, 5, 3, 5, 5], color: 'rgba(52,211,153,1)', label: 'MobileNetV3' },
+]);
+</script>
 
 <footer class="port-footer">
-  Professional Portfolio &nbsp;·&nbsp; <span>4 Artifacts</span> &nbsp;·&nbsp; Neural Networks · ML Framework · Generative AI LLM Training · Explainable AI
+  Professional Portfolio &nbsp;·&nbsp; <span>5 Artifacts</span> &nbsp;·&nbsp; Neural Networks · ML Framework · Generative AI LLM Training · Explainable AI · Pre-Trained Model Matrix
 </footer>
 
 <script>
